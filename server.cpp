@@ -13,9 +13,12 @@ Server::Server()
 void Server::incomingConnection(qintptr socketDescriptor)
 {
     socket = new QTcpSocket;
+    //socket->socketDescriptor()
     socket->setSocketDescriptor(socketDescriptor);
     connect(socket,&QTcpSocket::readyRead,this, &Server::slotReadyRead);
-    connect(socket,&QTcpSocket::disconnected,socket, &QTcpSocket::deleteLater);
+    //connect(socket,&QTcpSocket::disconnected,socket, &QTcpSocket::deleteLater);
+    connect(socket,&QTcpSocket::disconnected,this, &Server::slotDisconected);
+    //qDebug()<<"zha podkluch";
     Sockets.push_back(socket);
 
     qDebug()<<"client connected"<<socketDescriptor;
@@ -62,6 +65,25 @@ for( ; ; )
     }else{
         qDebug()<<"DataStream error";
     }
+}
+
+void Server::slotDisconected()
+{
+   // removeDescriptor=socket->socketDescriptor();
+   // qDebug()<<"removeDescriptor"<<removeDescriptor;
+    for(int i=0;i<Sockets.size();i++)
+    {
+        if(Sockets[i]==socket)
+        {
+            qDebug()<<i;
+
+            Sockets.remove(i);
+            qDebug()<<i;
+            //Sockets.clear();
+            break;
+        }
+    }
+    socket->deleteLater();
 }
 
 void Server::SendToClient(QString str)

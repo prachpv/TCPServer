@@ -18,10 +18,12 @@ private:
     QVector<QTcpSocket*> Sockets;
     QByteArray Data;
     quint16 nextBlockSize;
+   //int removeDescriptor;
     void SendToClient(QString str);
 public slots:
     void incomingConnection(qintptr socketDescriptor);
     void slotReadyRead();
+    void slotDisconected();
 };
 
 #endif // SERVER_H

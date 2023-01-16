@@ -56,10 +56,10 @@ for( ; ; )
     }
     QString str;
     QTime time;
-
-    in>>time>>str;
+QString name;
+    in>>name>>time>>str;
     nextBlockSize=0;
-    SendToClient(str);
+    SendToClient(name,str);
     break;
 }
     }else{
@@ -77,7 +77,8 @@ void Server::slotDisconected()
         {
             qDebug()<<i;
 
-            Sockets.remove(i);
+            //Sockets.remove(i);
+            Sockets.erase(Sockets.begin()+i);
             qDebug()<<i;
             //Sockets.clear();
             break;
@@ -86,12 +87,16 @@ void Server::slotDisconected()
     socket->deleteLater();
 }
 
-void Server::SendToClient(QString str)
+void Server::SendToClient(QString name,QString str)
 {
+
     Data.clear();
     QDataStream out(&Data,QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_10);
-    out<<quint16(0)<<QTime::currentTime()<<str;
+    //str+="fsfdsf123";
+
+    out<<quint16(0)<<name<<QTime::currentTime()<<str;
+
     out.device()->seek(0);
     out<<quint16(Data.size()-sizeof(quint16));
 
@@ -99,6 +104,7 @@ void Server::SendToClient(QString str)
     //socket->write(Data);
     for(int i=0;i<Sockets.size();i++)
     {
+
         Sockets[i]->write(Data);
     }
 }

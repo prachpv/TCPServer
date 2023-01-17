@@ -54,6 +54,8 @@ for( ; ; )
         qDebug()<<"Data not full,break";
         break;
     }
+
+
     QString str="";
     QTime time;
 QString name;
@@ -62,15 +64,53 @@ int mode;
     in>>name>>mode>>time;
     if(mode==0)
     {
+
         in>>str;
+        qDebug()<<"mode-> "<<QString::number(mode)<<"   "<<name<<" send -> "<<str;
     }
-    qDebug()<<"mode-> "<<QString::number(mode)<<"   "<<name<<" send -> "<<str;
-    nextBlockSize=0;
-    SendToClient(name,str,mode);
-    break;
+    QString filename;
+    //quint64 size;
+    if(mode==1)
+    {
+        in>>filename>>sizeReceiveFile;
+        qDebug() << "Size Recieve:  " << sizeReceiveFile << "FileName: " << filename;
+        receiveFile(filename);
+        break;
+    }
+
+
+    //SendToClient(name,str,mode);
+   nextBlockSize=0;
 }
     }else{
         qDebug()<<"DataStream error";
+    }
+}
+
+void Server::receiveFile(QString fileName) {
+    QString savePath = "C://";
+    QDir dir;
+    dir.mkpath(savePath);
+    file = new QFile(savePath + fileName);
+    file->open(QFile::WriteOnly);
+    sizeReceivedData = 0;
+    receiveFile();
+}
+void Server::receiveFile() {
+    QDataStream in(socket);
+    char block[1024];
+    while(!in.atEnd()){
+        qint64 toFile = in.readRawData(block, sizeof(block));
+        sizeReceivedData += toFile;
+        qDebug() << "sizeReceivedData: " << sizeReceivedData;
+        file->write(block, toFile);
+        if(sizeReceivedData == sizeReceiveFile){
+            file->close();
+            file = NULL;
+            qDebug() << "sizeReceivedData END: " << sizeReceivedData;
+            sizeReceiveFile = 0;
+            sizeReceivedData = 0;
+        }
     }
 }
 

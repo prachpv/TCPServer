@@ -54,12 +54,19 @@ for( ; ; )
         qDebug()<<"Data not full,break";
         break;
     }
-    QString str;
+    QString str="";
     QTime time;
 QString name;
-    in>>name>>time>>str;
+int mode;
+
+    in>>name>>mode>>time;
+    if(mode==0)
+    {
+        in>>str;
+    }
+    qDebug()<<"mode-> "<<QString::number(mode)<<"   "<<name<<" send -> "<<str;
     nextBlockSize=0;
-    SendToClient(name,str);
+    SendToClient(name,str,mode);
     break;
 }
     }else{
@@ -87,7 +94,7 @@ void Server::slotDisconected()
     socket->deleteLater();
 }
 
-void Server::SendToClient(QString name,QString str)
+void Server::SendToClient(QString name,QString str,int mode)
 {
 
     Data.clear();
@@ -95,7 +102,7 @@ void Server::SendToClient(QString name,QString str)
     out.setVersion(QDataStream::Qt_5_10);
     //str+="fsfdsf123";
 
-    out<<quint16(0)<<name<<QTime::currentTime()<<str;
+    out<<quint16(0)<<name<<mode<<QTime::currentTime()<<str;
 
     out.device()->seek(0);
     out<<quint16(Data.size()-sizeof(quint16));

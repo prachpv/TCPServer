@@ -19,7 +19,7 @@ private:
     QByteArray Data;
     quint16 nextBlockSize;
    //int removeDescriptor;
-    void SendToClient(QString name,QString str);
+    void SendToClient(QString name,QString str,int mode);
 public slots:
     void incomingConnection(qintptr socketDescriptor);
     void slotReadyRead();

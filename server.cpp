@@ -28,91 +28,46 @@ void Server::slotReadyRead()
 {
     socket = (QTcpSocket*) sender();
     QDataStream in(socket);
-    in.setVersion(QDataStream::Qt_5_10);
-    if(in.status()==QDataStream::Ok)
-    {
-qDebug()<<"read...";
-//QString str;
-//in>>str;
-//qDebug()<<str;
-//SendToClient(str);
-for( ; ; )
-{
-    if(nextBlockSize==0)
-    {
-        qDebug()<<"nextBlockSIze = 0";
-        if(socket->bytesAvailable()<2)
-        {
-             qDebug()<<"Data < 2, break";
-            break;
-        }
-        in>>nextBlockSize;
-        qDebug()<<"nextblockSize = "<<nextBlockSize;
-    }
-    if(socket->bytesAvailable()<nextBlockSize)
-    {
-        qDebug()<<"Data not full,break";
-        break;
-    }
+    qDebug() << "Entered downloading";
+            QDir dir;
+            QByteArray ba("!@#Rtasd#$%sdfs!!!)()334rrer");
+            QByteArray finalBA;
+     QString str ="testfile";
+            dir.mkpath("C:/Downloads/");
+            QFile loadedFile("C:/Downloads/" + str);
+            loadedFile.open(QIODevice::WriteOnly | QIODevice::Append);
 
+            while   (socket->bytesAvailable())   {
+                line = socket->readAll();
+                qDebug() << "str: " << str << "line size: " << line.size();
 
-    QString str="";
-    QTime time;
-QString name;
-int mode;
+                dataVector.append(line);
+                if (line.contains(ba)) {
+                    qDebug() << "Downloaded!";
+                    downloading_in_process = false;
 
-    in>>name>>mode>>time;
-    if(mode==0)
-    {
+                    dataVector.append(line);
+                }
+            }
 
-        in>>str;
-        qDebug()<<"mode-> "<<QString::number(mode)<<"   "<<name<<" send -> "<<str;
-    }
-    QString filename;
-    //quint64 size;
-    if(mode==1)
-    {
-        in>>filename>>sizeReceiveFile;
-        qDebug() << "Size Recieve:  " << sizeReceiveFile << "FileName: " << filename;
-        receiveFile(filename);
-        break;
-    }
+            foreach (QByteArray dataBA, dataVector) {
+                finalBA.append(dataBA);
+            }
+            while (finalBA.contains(ba))   {
+                int a = line.lastIndexOf(ba);
+                qDebug() << "line.lastIndexOf(ba): " << line.lastIndexOf(ba);
 
+                finalBA.remove(a, ba.size()+100);
+            }
+            int a = line.lastIndexOf(ba);
+            finalBA.remove(a, ba.size()+100);
+            loadedFile.write(finalBA);
+            loadedFile.waitForBytesWritten(30000);
+            dataVector.clear();
 
-    //SendToClient(name,str,mode);
-   nextBlockSize=0;
-}
-    }else{
-        qDebug()<<"DataStream error";
-    }
 }
 
-void Server::receiveFile(QString fileName) {
-    QString savePath = "C://";
-    QDir dir;
-    dir.mkpath(savePath);
-    file = new QFile(savePath + fileName);
-    file->open(QFile::WriteOnly);
-    sizeReceivedData = 0;
-    receiveFile();
-}
-void Server::receiveFile() {
-    QDataStream in(socket);
-    char block[1024];
-    while(!in.atEnd()){
-        qint64 toFile = in.readRawData(block, sizeof(block));
-        sizeReceivedData += toFile;
-        qDebug() << "sizeReceivedData: " << sizeReceivedData;
-        file->write(block, toFile);
-        if(sizeReceivedData == sizeReceiveFile){
-            file->close();
-            file = NULL;
-            qDebug() << "sizeReceivedData END: " << sizeReceivedData;
-            sizeReceiveFile = 0;
-            sizeReceivedData = 0;
-        }
-    }
-}
+
 
 void Server::slotDisconected()
 {

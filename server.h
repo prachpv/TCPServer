@@ -23,10 +23,12 @@ private:
     QFile* file;
     quint64 sizeReceivedData = 0;
     quint64 sizeReceiveFile;
+    bool downloading_in_process=false;
+    QByteArray line;
+    QVector<QByteArray> dataVector;
    //int removeDescriptor;
     void SendToClient(QString name,QString str,int mode);
-    void receiveFile(QString fileName);
-   void receiveFile();
+
 public slots:
     void incomingConnection(qintptr socketDescriptor);
     void slotReadyRead();

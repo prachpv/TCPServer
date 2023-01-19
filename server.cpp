@@ -26,45 +26,8 @@ void Server::incomingConnection(qintptr socketDescriptor)
 
 void Server::slotReadyRead()
 {
-    socket = (QTcpSocket*) sender();
-    QDataStream in(socket);
-    qDebug() << "Entered downloading";
-            QDir dir;
-            QByteArray ba("!@#Rtasd#$%sdfs!!!)()334rrer");
-            QByteArray finalBA;
-     QString str ="testfile";
-            dir.mkpath("C:/Downloads/");
-            QFile loadedFile("C:/Downloads/" + str);
-            loadedFile.open(QIODevice::WriteOnly | QIODevice::Append);
 
-            while   (socket->bytesAvailable())   {
-                line = socket->readAll();
-                qDebug() << "str: " << str << "line size: " << line.size();
-
-                dataVector.append(line);
-                if (line.contains(ba)) {
-                    qDebug() << "Downloaded!";
-                    downloading_in_process = false;
-
-                    dataVector.append(line);
-                }
-            }
-
-            foreach (QByteArray dataBA, dataVector) {
-                finalBA.append(dataBA);
-            }
-            while (finalBA.contains(ba))   {
-                int a = line.lastIndexOf(ba);
-                qDebug() << "line.lastIndexOf(ba): " << line.lastIndexOf(ba);
-
-                finalBA.remove(a, ba.size()+100);
-            }
-            int a = line.lastIndexOf(ba);
-            finalBA.remove(a, ba.size()+100);
-            loadedFile.write(finalBA);
-            loadedFile.waitForBytesWritten(30000);
-            dataVector.clear();
-
+ReadFile();
 }
 
 
@@ -109,4 +72,58 @@ void Server::SendToClient(QString name,QString str,int mode)
 
         Sockets[i]->write(Data);
     }
+}
+
+void Server::ReadFile()
+{
+    //    socket = (QTcpSocket*) sender();
+    //    QDataStream in(socket);
+        qDebug() << "Entered downloading";
+                QDir dir;
+                QByteArray ba("!@#Rtasd#$%sdfs!!!)()334rrer");
+                QByteArray finalBA;
+         QString str ="testfile.txt";
+                dir.mkpath("C:/Downloads/");
+                QFile loadedFile("C:/Downloads/" + str);
+                if(loadedFile.open(QIODevice::WriteOnly | QIODevice::Append)){
+
+
+                while   (socket->bytesAvailable())   {
+
+                    line = socket->readAll();
+                    QString temp=QString(line);
+
+                    qDebug() << "str: " << str << "line size: " << line;
+
+                    dataVector.append(line);
+                    if (line.contains(ba)) {
+                        qDebug() << "Downloaded!";
+                        downloading_in_process = false;
+
+                        dataVector.append(line);
+                    }
+                }
+
+                foreach (QByteArray dataBA, dataVector) {
+                    finalBA.append(dataBA);
+                }
+                while (finalBA.contains(ba))   {
+                    int a = line.lastIndexOf(ba);
+                    qDebug() << "line.lastIndexOf(ba): " << line.lastIndexOf(ba);
+
+                    finalBA.remove(a, ba.size()+100);
+                }
+                int a = line.lastIndexOf(ba);
+
+                finalBA.remove(a, ba.size()+100);
+
+                QString strtemp = QTextCodec::codecForMib(1015)->toUnicode(finalBA);
+                qDebug()<<finalBA.size()<<"<_>"<<strtemp;
+                //
+                //
+                loadedFile.write(finalBA);
+
+                loadedFile.waitForBytesWritten(30000);
+                dataVector.clear();
+                }
 }

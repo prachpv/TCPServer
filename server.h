@@ -24,10 +24,10 @@ private:
     bool downloading_in_process=false;
     QByteArray line;
     QFile* file_send;
-    int k;
+    QString temp_file_name;
+    int k=1;
     QVector<QByteArray> dataVector;
-    //void SendFile(QString str);
-   //int removeDescriptor;
+    void SendFile(QString str);
     void SendToClient(QString name,QString str,int mode);
 void ReadFile();
 public slots:
